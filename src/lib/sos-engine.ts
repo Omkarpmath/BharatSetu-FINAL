@@ -84,45 +84,59 @@ export interface SOSDispatchResult {
 
 // ─── DIGIPIN Encoder ────────────────────────────────────────────────────────
 //
-// Based on ISRO/India Post DIGIPIN specification (Geocode for India).
-// India bounds: lat [6.5, 37.6], lng [68.1, 97.4]
-// Grid: 4-level hierarchy → 4-char zone + 3-char block + 3-char cell
-// Character set: 2 3 4 5 6 7 8 9 C F H J M P Q R V W X Y  (20 chars, no O/I/L/B/A)
+// Correct ISRO/India Post DIGIPIN specification.
+// India bounds: lat [2.5, 38.5], lng [63.5, 99.5]
+// Algorithm: Iterative 4×4 grid subdivision (10 levels)
+// Each level picks a character from a 4×4 lookup grid based on
+// which row (latitude) and column (longitude) the point falls into.
+// Format: XXXX-XXX-XXX
 // ─────────────────────────────────────────────────────────────────────────────
 
-const DIGIPIN_CHARSET = '23456789CFHJMPQRVWXY';
+/** ISRO DIGIPIN 4×4 character grid — row 0 is northernmost, col 0 is westernmost. */
+const DIGIPIN_GRID = [
+  ['F', 'C', '9', '8'],
+  ['J', '2', '7', '6'],
+  ['K', '3', '4', '5'],
+  ['L', 'M', 'P', 'Q'],
+] as const;
 
-const INDIA_LAT_MIN = 6.5;
-const INDIA_LAT_MAX = 37.6;
-const INDIA_LNG_MIN = 68.1;
-const INDIA_LNG_MAX = 97.4;
+const INDIA_LAT_MIN = 2.5;
+const INDIA_LAT_MAX = 38.5;
+const INDIA_LNG_MIN = 63.5;
+const INDIA_LNG_MAX = 99.5;
 
-/** Encode a lat/lng pair into an ISRO-style DIGIPIN string (XXXX-XXX-XXX). */
+/** Encode a lat/lng pair into a valid ISRO DIGIPIN string (XXXX-XXX-XXX). */
 export function encodeDigipin(lat: number, lng: number): string {
   const clampLat = Math.max(INDIA_LAT_MIN, Math.min(INDIA_LAT_MAX, lat));
   const clampLng = Math.max(INDIA_LNG_MIN, Math.min(INDIA_LNG_MAX, lng));
 
-  // Normalise to [0, 1]
-  const normLat = (clampLat - INDIA_LAT_MIN) / (INDIA_LAT_MAX - INDIA_LAT_MIN);
-  const normLng = (clampLng - INDIA_LNG_MIN) / (INDIA_LNG_MAX - INDIA_LNG_MIN);
+  let latMin = INDIA_LAT_MIN;
+  let latMax = INDIA_LAT_MAX;
+  let lngMin = INDIA_LNG_MIN;
+  let lngMax = INDIA_LNG_MAX;
 
-  /**
-   * Interleave the lat/lng into successive 4-bit nibbles and map each nibble
-   * through the 20-char charset via modulo.  Produces 10 characters total.
-   */
-  const chars: string[] = [];
-  const latBits = Math.floor(normLat * (1 << 20));
-  const lngBits = Math.floor(normLng * (1 << 20));
+  let digipin = '';
 
-  for (let i = 0; i < 10; i++) {
-    // Take 2 bits from each axis → 4-bit index → pick from 20-char set via %
-    const nibble = (((latBits >> (18 - i * 2)) & 0x3) << 2) |
-                   ((lngBits >> (18 - i * 2)) & 0x3);
-    chars.push(DIGIPIN_CHARSET[nibble % 20]);
+  for (let level = 0; level < 10; level++) {
+    const latDiv = (latMax - latMin) / 4;
+    const lngDiv = (lngMax - lngMin) / 4;
+
+    // Row: 0 = north (top), 3 = south (bottom)
+    const row = Math.min(Math.floor((latMax - clampLat) / latDiv), 3);
+    // Column: 0 = west (left), 3 = east (right)
+    const col = Math.min(Math.floor((clampLng - lngMin) / lngDiv), 3);
+
+    digipin += DIGIPIN_GRID[row][col];
+
+    // Narrow bounds to the selected sub-cell
+    latMax = latMax - row * latDiv;
+    latMin = latMax - latDiv;
+    lngMin = lngMin + col * lngDiv;
+    lngMax = lngMin + lngDiv;
   }
 
   // Format: XXXX-XXX-XXX
-  return `${chars.slice(0, 4).join('')}-${chars.slice(4, 7).join('')}-${chars.slice(7, 10).join('')}`;
+  return `${digipin.slice(0, 4)}-${digipin.slice(4, 7)}-${digipin.slice(7, 10)}`;
 }
 
 // ─── GPS Capture ─────────────────────────────────────────────────────────────
@@ -403,35 +417,35 @@ function buildSMSText(payload: SOSAlertPayload, responder: Responder): string {
   switch (responder.type) {
     case 'police':
       return `🚨 SOS ALERT [${payload.eventId}] — ${userName} (${userMobile}) needs immediate help. ` +
-             `DIGIPIN: ${location.digipin} | Coords: ${coords} | Maps: ${maps} | Accuracy: ${location.accuracy}m`;
+        `DIGIPIN: ${location.digipin} | Coords: ${coords} | Maps: ${maps} | Accuracy: ${location.accuracy}m`;
 
     case 'ambulance':
       return `🆘 MEDICAL EMERGENCY — Patient: ${userName} (${userMobile}). ` +
-             `Location: DIGIPIN ${location.digipin}, ${coords}. Please dispatch immediately. SOS#${payload.eventId}`;
+        `Location: DIGIPIN ${location.digipin}, ${coords}. Please dispatch immediately. SOS#${payload.eventId}`;
 
     case 'women_child_safety':
       return `⚠️ WOMEN/CHILD SAFETY ALERT [${payload.eventId}] — ${userName} requires immediate assistance. ` +
-             `DIGIPIN: ${location.digipin} | ${coords} | ${maps}`;
+        `DIGIPIN: ${location.digipin} | ${coords} | ${maps}`;
 
     case 'child_helpline':
       return `🚸 CHILD SAFETY SOS [${payload.eventId}] — ${userName} (${userMobile}). ` +
-             `Location: ${location.digipin} | ${coords}`;
+        `Location: ${location.digipin} | ${coords}`;
 
     case 'contact':
       return `🚨 EMERGENCY — ${userName} has triggered an SOS alert! ` +
-             `Last known location: DIGIPIN ${location.digipin}. Please call ${userMobile} now. Ref: ${payload.eventId}`;
+        `Last known location: DIGIPIN ${location.digipin}. Please call ${userMobile} now. Ref: ${payload.eventId}`;
 
     case 'cyber_crime':
       return `🔐 CYBER CRIME SOS [${payload.eventId}] — ${userName} (${userMobile}). ` +
-             `Reporting from: ${location.digipin}`;
+        `Reporting from: ${location.digipin}`;
 
     case 'disaster_management':
       return `⛑️ DISASTER/NDRF ALERT [${payload.eventId}] — ${userName} at ${location.digipin} (${coords}) requires rescue. ` +
-             `Maps: ${maps}`;
+        `Maps: ${maps}`;
 
     default:
       return `SOS ALERT [${payload.eventId}] — ${userName}, ${userMobile}. ` +
-             `Location: ${location.digipin} | ${coords}`;
+        `Location: ${location.digipin} | ${coords}`;
   }
 }
 
@@ -464,12 +478,12 @@ export async function dispatchSOS(payload: SOSAlertPayload): Promise<SOSDispatch
     s.status === 'fulfilled'
       ? s.value
       : {
-          responderId: payload.responders[i].id,
-          responderName: payload.responders[i].name,
-          type: payload.responders[i].type,
-          status: 'failed' as const,
-          error: s.reason?.message || 'Dispatch failed',
-        }
+        responderId: payload.responders[i].id,
+        responderName: payload.responders[i].name,
+        type: payload.responders[i].type,
+        status: 'failed' as const,
+        error: s.reason?.message || 'Dispatch failed',
+      }
   );
 
   return {

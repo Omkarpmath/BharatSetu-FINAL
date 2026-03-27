@@ -102,12 +102,12 @@ export async function POST(request: NextRequest) {
     // ── Send ONE consolidated SMS ────────────────────────────────
     const coords = `${body.lat.toFixed(5)},${body.lng.toFixed(5)}`;
     const bingMapsLink = `https://bing.com/maps?cp=${body.lat}~${body.lng}&lvl=16`;
-    
+
     // Mask mobile number (show only last 3 digits)
-    const maskedMobile = body.userMobile 
+    const maskedMobile = body.userMobile
       ? `+91-${body.userMobile.slice(-10, -3).replace(/./g, 'X')}${body.userMobile.slice(-3)}`
       : 'N/A';
-    
+
     const smsText = `SOS
 Name:${body.userName}
 Mob:${maskedMobile}
