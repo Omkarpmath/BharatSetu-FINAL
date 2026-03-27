@@ -1512,7 +1512,12 @@ export default function AgentChat({ onClose }: { onClose: () => void }) {
                   setTrackToast(String(t('formSubmittedSecurely', 'Form submitted securely')));
                   setTimeout(() => setTrackToast(null), 3000);
                 }} 
-                disabled={!formData.details || formData.details.length < 3}
+                disabled={
+                  // Require all non-autofill fields to be non-empty
+                  activeForm.fields
+                    .filter(f => !f.autofillSource)
+                    .some(f => !formData[f.name] || formData[f.name].trim().length === 0)
+                }
                 className="flex-1 py-1.5 text-xs font-semibold rounded-lg bg-gradient-to-r from-[#FF9933] to-[#E68A2E] text-white disabled:opacity-50"
               >
                 {t('submitSecurely', 'Submit Securely')}
