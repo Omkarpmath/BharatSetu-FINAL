@@ -473,7 +473,7 @@ export default function SOSButton({ onClose }: SOSButtonProps) {
         }
 
         const encodedMessage = encodeURIComponent(waMessage);
-        const url = `https://wa.me/917061203449?text=${encodedMessage}`;
+        const url = `https://wa.me/917838113710?text=${encodedMessage}`;
 
         try {
           // Add a small delay so browser doesn't block it too aggressively

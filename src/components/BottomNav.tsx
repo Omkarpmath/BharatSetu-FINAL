@@ -14,12 +14,12 @@ export default function BottomNav({ activeTab, onNavigate, onServicesOpen }: Bot
   const { t } = useTranslation();
   const trackBadge = useAppStore(state => state.trackBadge);
 
-  const tabs = [
+  const tabs: { key: string; icon: string; label: string; screen: ScreenKey | null; sos?: boolean }[] = [
     { key: 'home', icon: 'home', label: t('navHome', 'Home'), screen: 'home' as ScreenKey },
     { key: 'services', icon: 'apps', label: t('navServices', 'Services'), screen: null },
+    { key: 'sos', icon: 'emergency', label: 'SOS', screen: 'sos' as ScreenKey, sos: true },
     { key: 'cases', icon: 'assignment', label: t('navTrack', 'Track'), screen: 'cases' as ScreenKey },
     { key: 'community', icon: 'groups', label: t('navCommunity', 'Community'), screen: 'community' as ScreenKey },
-    { key: 'profile', icon: 'person', label: t('navProfile', 'Profile'), screen: 'profile' as ScreenKey },
   ];
 
   return (
@@ -36,6 +36,29 @@ export default function BottomNav({ activeTab, onNavigate, onServicesOpen }: Bot
           {tabs.map((tab) => {
             const isActive = activeTab === (tab.screen || tab.key);
 
+            // ── SOS center button — red asterisk with notification dot ──
+            if (tab.sos) {
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => onNavigate('sos' as ScreenKey)}
+                  className="flex-1 relative flex flex-col items-center justify-center gap-1 py-1 px-1"
+                >
+                  <div className="relative">
+                    <span
+                      className="material-symbols-outlined text-[28px] text-red-500"
+                      style={{ fontVariationSettings: "'FILL' 1, 'wght' 700" }}
+                    >
+                      emergency
+                    </span>
+                    {/* Red notification dot */}
+                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500 border border-slate-50 dark:border-[#0a1628]" />
+                  </div>
+                  <span className="text-[10px] font-bold text-red-500 tracking-wide">SOS</span>
+                </button>
+              );
+            }
+
             return (
               <button
                 key={tab.key}
@@ -46,11 +69,10 @@ export default function BottomNav({ activeTab, onNavigate, onServicesOpen }: Bot
                     onNavigate(tab.screen);
                   }
                 }}
-                className={`flex-1 relative flex flex-col items-center justify-center gap-1 py-1 px-1 rounded-xl transition-all duration-300 ${
-                  isActive 
-                    ? 'text-[#FF9933] scale-105' 
+                className={`flex-1 relative flex flex-col items-center justify-center gap-1 py-1 px-1 rounded-xl transition-all duration-300 ${isActive
+                    ? 'text-[#FF9933] scale-105'
                     : 'text-gray-400 hover:text-slate-600 dark:text-gray-400 dark:hover:text-gray-200'
-                }`}
+                  }`}
               >
                 <span
                   className={`material-symbols-outlined text-[24px] transition-all ${isActive ? 'font-bold' : ''}`}

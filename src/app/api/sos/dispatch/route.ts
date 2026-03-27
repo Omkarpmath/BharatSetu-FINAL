@@ -40,13 +40,62 @@ async function simulateDispatch(req: DispatchRequest): Promise<void> {
   await new Promise((r) => setTimeout(r, delay + Math.random() * 200));
 }
 
-async function realSMSDispatch(req: DispatchRequest): Promise<void> {
+async function realFast2SMSDispatch(req: DispatchRequest): Promise<void> {
   /**
-   * Production SMS via MSG91 API (configurable via env vars).
+   * SMS via Fast2SMS API (recommended for India).
+   * Set FAST2SMS_API_KEY in .env.local to enable.
+   * FAST2SMS_PHONE is the fallback recipient phone for dev/demo testing.
+   */
+  const apiKey = process.env.FAST2SMS_API_KEY;
+  if (!apiKey) throw new Error('FAST2SMS_API_KEY not configured');
+
+  // Use the responder number, or fall back to the dev test phone
+  const phone = req.number.replace(/^0+/, '').replace(/^\+91/, '') || process.env.FAST2SMS_PHONE;
+  if (!phone) throw new Error('No phone number for Fast2SMS dispatch');
+
+  // Truncate message to 459 chars (Fast2SMS limit for quick-transactional)
+  const message = req.message.length > 459 ? req.message.slice(0, 456) + '...' : req.message;
+
+  const res = await fetch('https://www.fast2sms.com/dev/bulkV2', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: apiKey,
+    },
+    body: JSON.stringify({
+      route: 'q',            // quick transactional route
+      message,
+      language: 'english',
+      flash: 0,
+      numbers: phone,
+    }),
+    signal: AbortSignal.timeout(8000),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => '');
+    throw new Error(`Fast2SMS error ${res.status}: ${errBody}`);
+  }
+
+  const data = await res.json();
+  if (!data.return) {
+    throw new Error(`Fast2SMS rejected: ${data.message || JSON.stringify(data)}`);
+  }
+  console.log(`[SOS Fast2SMS] Sent to ${phone} — request_id: ${data.request_id}`);
+}
+
+async function realSMSDispatch(req: DispatchRequest): Promise<void> {
+  // Prefer Fast2SMS if configured, otherwise fall back to MSG91
+  if (process.env.FAST2SMS_API_KEY) {
+    return realFast2SMSDispatch(req);
+  }
+
+  /**
+   * Fallback: SMS via MSG91 API.
    * Set MSG91_AUTH_KEY + MSG91_SENDER_ID in .env.local to enable.
    */
   const authKey = process.env.MSG91_AUTH_KEY;
-  if (!authKey) throw new Error('MSG91_AUTH_KEY not configured');
+  if (!authKey) throw new Error('No SMS provider configured — set FAST2SMS_API_KEY or MSG91_AUTH_KEY');
 
   const smsBody = {
     sender: process.env.MSG91_SENDER_ID || 'BHRSETU',
@@ -147,25 +196,86 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    if (isDev) {
-      // Development / demo mode — simulate realistic delay, always succeed
-      await simulateDispatch(body);
-    } else {
-      // Production mode — use real integrations
-      switch (body.channel) {
-        case 'sms':
-          await realSMSDispatch(body);
-          break;
-        case 'webhook':
+    /**
+     * Dispatch strategy (works in BOTH dev and production):
+     *   1. webhook channel → always try realWebhookDispatch if URL is configured
+     *   2. sms channel     → always try Fast2SMS / MSG91 if key is configured
+     *   3. api / call      → try Exotel if configured
+     *   4. If no real credentials are available, fall back to simulated delay
+     */
+    let dispatched = false;
+
+    switch (body.channel) {
+      case 'webhook': {
+        // Check if a webhook URL exists for this responder type
+        const webhookMap: Record<string, string | undefined> = {
+          police: process.env.SOS_WEBHOOK_POLICE,
+          women_child_safety: process.env.SOS_WEBHOOK_MAHILA,
+          child_helpline: process.env.SOS_WEBHOOK_CHILDLINE,
+          disaster_management: process.env.SOS_WEBHOOK_NDRF,
+          cyber_crime: process.env.SOS_WEBHOOK_CYBER,
+          legal_aid: process.env.SOS_WEBHOOK_LEGAL,
+        };
+        if (webhookMap[body.responderType]) {
           await realWebhookDispatch(body);
-          break;
-        case 'api':
-        case 'call':
-          await realAPICallDispatch(body);
-          break;
-        default:
-          throw new Error(`Unknown channel: ${body.channel}`);
+          dispatched = true;
+          console.log(`[SOS Dispatch] Webhook sent for ${body.responderType}`);
+        }
+        break;
       }
+      case 'sms': {
+        if (process.env.FAST2SMS_API_KEY || process.env.MSG91_AUTH_KEY) {
+          await realSMSDispatch(body);
+          dispatched = true;
+          console.log(`[SOS Dispatch] SMS sent to ${body.number}`);
+        }
+        break;
+      }
+      case 'api':
+      case 'call': {
+        // Try webhook first (most responders use 'api' channel but we can
+        // route them to webhooks for testing)
+        const webhookFallback: Record<string, string | undefined> = {
+          police: process.env.SOS_WEBHOOK_POLICE,
+          ambulance: process.env.SOS_WEBHOOK_POLICE, // reuse police webhook
+          fire: process.env.SOS_WEBHOOK_POLICE,
+          women_child_safety: process.env.SOS_WEBHOOK_MAHILA,
+          child_helpline: process.env.SOS_WEBHOOK_CHILDLINE,
+          disaster_management: process.env.SOS_WEBHOOK_NDRF,
+          cyber_crime: process.env.SOS_WEBHOOK_CYBER,
+          legal_aid: process.env.SOS_WEBHOOK_LEGAL,
+        };
+        const url = webhookFallback[body.responderType];
+        if (url) {
+          // Send as webhook even though channel is 'api' — for dev testing
+          await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              eventId: body.eventId,
+              responderId: body.responderId,
+              responderType: body.responderType,
+              channel: body.channel,
+              number: body.number,
+              message: body.message,
+              timestamp: new Date().toISOString(),
+            }),
+            signal: AbortSignal.timeout(8000),
+          });
+          dispatched = true;
+          console.log(`[SOS Dispatch] API→Webhook fallback sent for ${body.responderType}`);
+        } else if (process.env.EXOTEL_API_KEY) {
+          await realAPICallDispatch(body);
+          dispatched = true;
+        }
+        break;
+      }
+    }
+
+    // Fallback: simulate delay if no real provider was available
+    if (!dispatched) {
+      await simulateDispatch(body);
+      console.log(`[SOS Dispatch] Simulated dispatch for ${body.responderId} (no credentials configured)`);
     }
 
     return NextResponse.json({

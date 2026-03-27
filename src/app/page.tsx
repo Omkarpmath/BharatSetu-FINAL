@@ -19,6 +19,7 @@ import GovAnalytics from '@/components/GovAnalytics';
 import GovAlerts from '@/components/GovAlerts';
 import GovAdmin from '@/components/GovAdmin';
 import SOSHardwareTrigger from '@/components/SOSHardwareTrigger';
+import SOSButton from '@/components/SOSButton';
 import { SCREENS, type ScreenKey } from '@/lib/screens';
 import { translations } from '@/lib/i18n/translations';
 import { useAppStore, type AgentKey } from '@/lib/store';
@@ -560,6 +561,11 @@ export default function HomePage() {
       {/* Emergency Contacts Manager */}
       {activeOverlay === 'emergency-contacts' && (
         <EmergencyContactsManager onClose={() => setOverlay('none')} />
+      )}
+
+      {/* SOS Emergency Overlay */}
+      {activeOverlay === 'sos-active' && (
+        <SOSButton onClose={() => setOverlay('none')} />
       )}
 
       {/* Scam Alert Overlay */}
