@@ -1,318 +1,409 @@
-# Bharat Setu — Bridging the Digital Divide with Agentic Governance
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js" alt="Next.js 14" />
+  <img src="https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Azure_OpenAI-GPT--4o-0078D4?style=for-the-badge&logo=microsoft-azure" alt="Azure OpenAI" />
+  <img src="https://img.shields.io/badge/Languages-22-orange?style=for-the-badge" alt="22 Languages" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License" />
+</p>
 
-<div align="center">
+<h1 align="center">🇮🇳 BharatSetu</h1>
+<h3 align="center"><em>Bridging India's Governance Gap with Multi-Agent AI</em></h3>
 
-![Bharat Setu Banner](https://img.shields.io/badge/Bharat%20Setu-Agentic%20Governance-FF9933?style=for-the-badge)
-
-[![Next.js](https://img.shields.io/badge/Next.js-14.2.21-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
-[![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
-[![Azure AI](https://img.shields.io/badge/Azure-AI%20Services-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)](https://azure.microsoft.com)
-
-**A multilingual, mobile-first governance platform for citizens and public service workflows.**  
-*Voice + chat access · specialist agent routing · grievance workflows · scheme matching · DIGIPIN + SOS orchestration*
-
-</div>
-
----
-
-## Table of Contents
-
-1. [Overview](#overview)
-2. [Core Capabilities](#core-capabilities)
-3. [System Architecture](#system-architecture)
-4. [Tech Stack](#tech-stack)
-5. [Project Structure](#project-structure)
-6. [Getting Started](#getting-started)
-7. [Environment Setup](#environment-setup)
-8. [API Reference](#api-reference)
-9. [Deployment](#deployment)
-10. [Notes](#notes)
+<p align="center">
+  A multi-agent AI platform where five specialized domain agents collaborate in real-time<br/>
+  to deliver unified citizen services across all <strong>22 official Indian languages</strong>.
+</p>
 
 ---
 
-## Overview
+## 📋 Table of Contents
 
-**Bharat Setu** is a Next.js platform designed to reduce the navigation burden citizens face when accessing digital public services. Instead of expecting users to understand departments, forms, and portals, the app captures natural text/voice input, routes it to a specialist assistant, and drives users into actionable workflows.
-
-The repository includes a working hybrid app shell with static stitched screens and stateful TypeScript overlays for high-trust interactions (chat, voice, grievance, scheme scanner, SOS, DIGIPIN, tracking, impact/profile).
-
----
-
-## Core Capabilities
-
-### 🧠 Council of Five Specialists
-- **Nagarik Mitra** — civic and municipal workflows
-- **Swasthya Sahayak** — health and emergency guidance
-- **Yojana Saathi** — schemes, eligibility, and benefits
-- **Arthik Salahkar** — finance, scams, and banking support
-- **Vidhi Sahayak** — legal rights and FIR/legal aid pathways
-
-### 🎙️ Voice + Multilingual Access
-- 22-language onboarding and profile flow
-- Voice assistant with intent classification and agent handoff
-- Azure Speech-backed STT/TTS with robust browser fallback handling
-
-### 🧾 Actionable Governance Workflows
-- Grievance filing with image support and moderation checks
-- Scheme matching with Azure AI Search fallback behavior
-- Trackable case lifecycle and civic karma participation loop
-
-### 📍 DIGIPIN + SOS Emergency Stack
-- DIGIPIN encode/decode + geolocation integration
-- SOS hold-to-trigger, optional voice trigger, responder fan-out
-- Live status polling, location updates, offline queueing, SMS support
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [Architecture](#-architecture)
+- [Tech Stack](#-tech-stack)
+- [Getting Started](#-getting-started)
+- [Environment Variables](#-environment-variables)
+- [API Endpoints](#-api-endpoints)
+- [Project Structure](#-project-structure)
+- [Multi-Agent System](#-multi-agent-system)
+- [SOS Emergency System](#-sos-emergency-system)
+- [Contributing](#-contributing)
+- [License](#-license)
 
 ---
 
-## System Architecture
+## 🔍 Overview
 
-```mermaid
-graph TB
-    subgraph "Client"
-      UI[Next.js App Shell]
-      IFRAME[Stitched Screens]
-      OVR[React Overlays]
-    end
+India's 1.4 billion citizens navigate **4,000+ government schemes** across 39 ministries — most accessible only in English through complex, fragmented portals. **BharatSetu** solves this with a **Council of Five** AI agents that collaborate to deliver civic services, health guidance, scheme matching, financial aid, and legal help through a single voice-first mobile interface.
 
-    subgraph "Interaction Overlays"
-      CHAT[Agent Chat]
-      VOICE[Voice Assistant]
-      GRV[Grievance]
-      SCH[Scheme Scanner]
-      SOS[SOS Engine]
-      DIGI[DIGIPIN Locator]
-      TRACK[Track Cases]
-      IMP[Impact/Profile]
-    end
+### Problem
 
-    subgraph "API Routes"
-      AGENT["/api/agent"]
-      STT["/api/stt"]
-      VOI["/api/voice"]
-      TR["/api/translate"]
-      GR["/api/grievance"]
-      SCM["/api/schemes"]
-      SOSAPI["/api/sos routes"]
-      CS["/api/content-safety"]
-      VIS["/api/vision-chat"]
-    end
+| Challenge | Scale |
+|-----------|-------|
+| Language barrier | 65% of rural Indians can't access English-only portals |
+| Fragmented services | 20+ portals for a single citizen's needs |
+| Emergency response gap | 7+ helpline numbers to dial manually |
 
-    subgraph "External Services"
-      AZSP[Azure Speech]
-      AZTR[Azure Translator]
-      AZVS[Azure Vision]
-      AZCS[Azure Content Safety]
-      AZSR[Azure AI Search]
-      GHM[GitHub Models]
-      SMS[Fast2SMS]
-    end
+### Solution
 
-    UI --> IFRAME
-    UI --> OVR
-    OVR --> CHAT
-    OVR --> VOICE
-    OVR --> GRV
-    OVR --> SCH
-    OVR --> SOS
-    OVR --> DIGI
-    OVR --> TRACK
-    OVR --> IMP
+A multi-agent AI system where **Nagarik Mitra** (Civic), **Swasthya Sahayak** (Health), **Yojana Saathi** (Welfare), **Arthik Salahkar** (Finance), and **Vidhi Sahayak** (Legal) share context, debate, and converge to serve citizens in their native language.
 
-    CHAT --> AGENT
-    VOICE --> STT
-    VOICE --> VOI
-    CHAT --> TR
-    GRV --> GR
-    SCH --> SCM
-    SOS --> SOSAPI
+---
 
-    AGENT --> GHM
-    STT --> AZSP
-    VOI --> AZSP
-    TR --> AZTR
-    GR --> AZVS
-    CS --> AZCS
-    SCM --> AZSR
-    SOSAPI --> SMS
+## ✨ Key Features
+
+### 🤖 Multi-Agent AI Collaboration
+- Five specialized domain agents with shared MCP context
+- Phi-4 powered intelligent routing with parallel dual-model classification
+- Automatic cross-agent handoff with full conversation preservation
+- Multi-agent collaboration cards showing confidence scores
+
+### 🗣️ Voice-First in 22 Languages
+- Azure Speech Services STT/TTS for all 22 scheduled Indian languages
+- Real-time speech recognition with auto-agent routing
+- Neural TTS reads responses in the citizen's native language
+
+### 🆘 SOS Emergency Dispatch
+- One-touch emergency alert with 3-second long-press activation
+- Async fan-out to 7+ responders (Police, Ambulance, Fire, NDRF, Women Helpline, Cyber Crime, Legal Aid)
+- ISRO DIGIPIN location encoding for precise emergency geo-tagging
+- Real-time GPS tracking during active emergencies
+- WhatsApp emergency alert integration
+
+### 📝 AI-Generated Dynamic Forms
+- LLM-powered context-specific form generation based on user intent
+- Auto-fill from Aadhaar-verified citizen profile
+- Required document checklist generation
+
+### 🔒 Enterprise-Grade Resilience
+- Triple-fallback LLM chain: Azure OpenAI → GitHub Models GPT-4.1-mini → Demo responses
+- Dual Azure deployment round-robin (2× TPM)
+- Content safety moderation on every message
+- Translation cache + routing cache for sub-100ms repeated queries
+
+---
+
+## 🏗️ Architecture
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                   CITIZEN (22 Languages)                      │
+│              Voice / Text / Image / SOS Button                │
+└──────────────────────┬───────────────────────────────────────┘
+                       │
+          ┌────────────┼────────────┐
+          ▼            ▼            ▼
+   ┌────────────┐ ┌─────────┐ ┌──────────┐
+   │Content     │ │Azure    │ │ISRO      │
+   │Safety      │ │Translator│ │DIGIPIN   │
+   │Moderation  │ │(22 lang)│ │Geolocation│
+   └─────┬──────┘ └────┬────┘ └─────┬────┘
+         │             │            │
+         └─────────────┼────────────┘
+                       ▼
+   ┌───────────────────────────────────────────────────────────┐
+   │            AGENT ROUTING (Parallel)                        │
+   │ Pass 1: Microsoft Phi-4 (GitHub Models) — 5s timeout      │
+   │ Pass 2: Local TF-IDF + SVC classifier — fallback          │
+   │ Pass 3: Client-side keyword regex — last resort            │
+   └──────────────────────┬────────────────────────────────────┘
+                          ▼
+   ┌───────────────────────────────────────────────────────────┐
+   │              COUNCIL OF FIVE AGENTS                        │
+   │                                                            │
+   │  🏛️ Nagarik Mitra    │  🏥 Swasthya Sahayak               │
+   │  📋 Yojana Saathi    │  💰 Arthik Salahkar                │
+   │  ⚖️ Vidhi Sahayak    │  🌾 Kisan Mitra                    │
+   │                                                            │
+   │  Shared MCP Context: Last 8 cross-agent messages           │
+   └──────────────────────┬────────────────────────────────────┘
+                          ▼
+   ┌───────────────────────────────────────────────────────────┐
+   │              LLM RESPONSE GENERATION                       │
+   │                                                            │
+   │  Primary:  Azure OpenAI GPT-4o-mini (Dual Deploy A/B)     │
+   │  Fallback: GitHub Models GPT-4.1-mini → GPT-4o            │
+   │  Final:    Rich demo responses (never fails)               │
+   └───────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-### Frontend
-| Component | Technology |
-|---|---|
-| Framework | Next.js 14 (App Router) |
-| UI | React 18 + TypeScript |
-| Styling | Tailwind CSS |
-| Animation/Charts | Framer Motion, Recharts |
-| State | Zustand |
-
-### Backend (in-app API routes)
-| Component | Technology |
-|---|---|
-| Server runtime | Next.js Route Handlers |
-| AI routing | GitHub Models + model fallbacks |
-| Speech | Azure Speech (STT/TTS) |
-| Translation | Azure Translator |
-| Safety/vision/search | Azure Content Safety, Vision, AI Search |
+| Category | Technology |
+|----------|-----------|
+| **Framework** | Next.js 14 (App Router) |
+| **Language** | TypeScript 5 |
+| **UI** | React 18, Tailwind CSS, Framer Motion |
+| **State** | Zustand |
+| **AI Models** | Azure OpenAI (GPT-4o-mini), GitHub Models (GPT-4.1-mini, Phi-4) |
+| **Translation** | Azure AI Translator, MyMemory API |
+| **Speech** | Azure Cognitive Speech Services (STT + Neural TTS) |
+| **Safety** | Azure Content Safety |
+| **Vision** | Azure Computer Vision / GPT-4o Vision |
+| **Charts** | Recharts |
+| **Icons** | Lucide React, Material Symbols |
+| **Mobile** | Capacitor (Android) |
 
 ---
 
-## Project Structure
-
-```text
-bharat-setu/
-  src/
-    app/
-      api/
-        agent/
-        stt/
-        voice/
-        translate/
-        grievance/
-        schemes/
-        sos/
-        content-safety/
-        vision-chat/
-    components/
-      AgentChat.tsx
-      VoiceAssistant.tsx
-      SOSButton.tsx
-      ...
-    lib/
-      web-stt.ts
-      sos-engine.ts
-      store.ts
-  public/
-    screens/
-  Dockerfile
-  netlify.toml
-```
-
----
-
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 20+ (repo currently configured for Next.js 14)
-- npm
 
-### Install
+- **Node.js** ≥ 18.0
+- **npm** ≥ 9.0
+- **Git**
+
+### Installation
 
 ```bash
+# 1. Clone the repository
+git clone https://github.com/Omkarpmath/BharatSetu-FINAL.git
+cd bharat_setu
+
+# 2. Install dependencies
 npm install
-```
 
-### Run development server
+# 3. Create environment file
+cp .env.example .env.local
+# Edit .env.local with your API keys (see Environment Variables section)
 
-```bash
+# 4. Start the development server
 npm run dev
 ```
 
-Default URL: `http://localhost:3000`
+The app will be available at **http://localhost:3000**
 
-### Build + start production
+### Build for Production
 
 ```bash
 npm run build
-npm run start
+npm start
 ```
 
 ---
 
-## Environment Setup
+## 🔑 Environment Variables
 
-Create `.env.local` in project root and configure the services you need.
+Create a `.env.local` file in the project root with the following variables:
 
-### Commonly used keys
+### Required (Core AI)
 
-```env
-# Speech
-AZURE_SPEECH_KEY=
-AZURE_SPEECH_REGION=
+| Variable | Description | Get it from |
+|----------|-------------|-------------|
+| `GITHUB_TOKEN` | GitHub Personal Access Token for GPT-4o/GPT-4.1-mini | [GitHub Settings → Developer Settings → Tokens](https://github.com/settings/tokens) |
+| `GITHUB_TOKEN_PHI` | Dedicated token for Phi-4 agent routing | Same as above (separate to avoid rate limits) |
 
-# Translation
-AZURE_TRANSLATOR_KEY=
-AZURE_TRANSLATOR_REGION=
+### Recommended (Enhanced Features)
 
-# Vision
-AZURE_VISION_ENDPOINT=
-AZURE_VISION_KEY=
+| Variable | Description | Get it from |
+|----------|-------------|-------------|
+| `AZURE_TRANSLATOR_KEY` | Azure AI Translator (22-language support) | [Azure Portal](https://portal.azure.com) |
+| `AZURE_TRANSLATOR_REGION` | Translator region (e.g., `centralindia`) | Azure Portal |
+| `AZURE_SPEECH_KEY` | Azure Speech Services (STT/TTS) | Azure Portal |
+| `AZURE_SPEECH_REGION` | Speech region (e.g., `centralindia`) | Azure Portal |
+| `AZURE_CONTENT_SAFETY_KEY` | Azure Content Safety moderation | Azure Portal |
+| `AZURE_CONTENT_SAFETY_ENDPOINT` | Content Safety endpoint URL | Azure Portal |
 
-# Content Safety
-AZURE_CONTENT_SAFETY_ENDPOINT=
-AZURE_CONTENT_SAFETY_KEY=
+### Optional (SOS & Notifications)
 
-# Search
-AZURE_SEARCH_ENDPOINT=
-AZURE_SEARCH_KEY=
-AZURE_SEARCH_INDEX=
+| Variable | Description |
+|----------|-------------|
+| `SOS_WEBHOOK_POLICE` | Webhook URL for police dispatch |
+| `SOS_WEBHOOK_MAHILA` | Webhook URL for women helpline dispatch |
+| `SOS_WEBHOOK_CHILDLINE` | Webhook URL for child helpline dispatch |
+| `SOS_WEBHOOK_NDRF` | Webhook URL for disaster management dispatch |
+| `SOS_WEBHOOK_CYBER` | Webhook URL for cyber crime dispatch |
+| `SOS_WEBHOOK_LEGAL` | Webhook URL for legal aid dispatch |
+| `FAST2SMS_API_KEY` | Fast2SMS API key for SMS alerts |
+| `FAST2SMS_PHONE` | Default SMS recipient number |
 
-# Model routing
-GITHUB_TOKEN=
+### Optional (Azure OpenAI — Alternative to GitHub Models)
+
+| Variable | Description |
+|----------|-------------|
+| `AZURE_OPENAI_API_KEY` | Azure OpenAI API key |
+| `AZURE_OPENAI_ENDPOINT` | Azure OpenAI endpoint URL |
+| `AZURE_OPENAI_DEPLOYMENT` | Primary deployment name (e.g., `gpt-4o-mini`) |
+| `AZURE_OPENAI_DEPLOYMENT_B` | Secondary deployment for round-robin |
+
+> **Note:** If Azure OpenAI is not configured, the app automatically uses GitHub Models (free tier) as the primary LLM provider.
+
+---
+
+## 📡 API Endpoints
+
+BharatSetu exposes **17 API routes** under `/api/`:
+
+### AI & Agents
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/agent` | POST | Multi-agent orchestration — routing + LLM response generation |
+| `/api/intelligence/multi-agent` | POST | Phi-4 multi-domain collaboration detection |
+| `/api/generate-form` | POST | AI-powered dynamic form schema generation |
+| `/api/content-safety` | POST | Azure Content Safety text moderation |
+| `/api/vision-chat` | POST | Image/document analysis via AI vision |
+| `/api/translate` | POST | Language translation (Azure + MyMemory fallback) |
+
+### Voice
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/stt` | POST | Speech-to-text via Azure Speech Services |
+| `/api/voice` | POST | Text-to-speech via Azure Neural TTS |
+
+### Services
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/grievance` | POST | Civic complaint filing with AI ticket generation |
+| `/api/schemes` | GET | Government scheme database search |
+| `/api/health` | GET | Health facilities and information |
+
+### SOS Emergency
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/sos` | POST | Trigger emergency — creates event + async dispatch |
+| `/api/sos/dispatch` | POST | Single responder dispatch (webhook/API) |
+| `/api/sos/status` | GET | Poll SOS event and responder status |
+| `/api/sos/end` | POST | End active SOS session |
+| `/api/sos/sms` | POST | SMS alerts via Fast2SMS / MSG91 |
+| `/api/sos/update-location` | POST | Real-time GPS location updates |
+
+---
+
+## 📁 Project Structure
+
+```
+bharat_setu/
+├── src/
+│   ├── app/
+│   │   ├── api/                    # 17 API routes
+│   │   │   ├── agent/              # Multi-agent orchestration
+│   │   │   ├── intelligence/       # Phi-4 multi-agent detection
+│   │   │   ├── sos/                # SOS emergency system (6 routes)
+│   │   │   ├── stt/                # Speech-to-text
+│   │   │   ├── voice/              # Text-to-speech
+│   │   │   ├── translate/          # Language translation
+│   │   │   ├── generate-form/      # AI form generation
+│   │   │   ├── content-safety/     # Content moderation
+│   │   │   ├── vision-chat/        # Image analysis
+│   │   │   ├── grievance/          # Civic complaints
+│   │   │   ├── schemes/            # Scheme database
+│   │   │   └── health/             # Health services
+│   │   ├── layout.tsx              # Root layout
+│   │   └── page.tsx                # Home page
+│   ├── components/
+│   │   ├── AgentChat.tsx           # Main multi-agent chat UI
+│   │   ├── SOSButton.tsx           # SOS emergency overlay
+│   │   ├── BottomNav.tsx           # Navigation with SOS trigger
+│   │   ├── ScreenDrawer.tsx        # Screen routing
+│   │   ├── VoiceAssistant.tsx      # Voice input handler
+│   │   ├── GrievanceForm.tsx       # Civic complaint form
+│   │   └── screens/               # Feature-specific screens
+│   └── lib/
+│       ├── store.ts                # Zustand global state
+│       ├── azure-config.ts         # Azure service configuration
+│       ├── sos-engine.ts           # SOS dispatch engine
+│       ├── digipin.ts              # ISRO DIGIPIN encoder/decoder
+│       ├── intelligence.ts         # AI intelligence utilities
+│       └── permissions.ts          # Role & karma system
+├── public/
+│   └── screens/                    # Localized HTML screens (7 pages × 22 languages)
+├── .env.local                      # Environment variables (not committed)
+├── next.config.mjs                 # Next.js configuration
+├── tailwind.config.ts              # Tailwind CSS configuration
+├── tsconfig.json                   # TypeScript configuration
+└── package.json                    # Dependencies & scripts
 ```
 
-If some keys are missing, many workflows continue in fallback/demo-safe mode.
-
 ---
 
-## API Reference
+## 🤖 Multi-Agent System
 
-Base URL (local): `http://localhost:3000`
+### How Agent Routing Works
 
-| Endpoint | Method | Purpose |
-|---|---|---|
-| `/api/health` | GET | Health check |
-| `/api/agent` | POST | Specialist routing + response generation |
-| `/api/stt` | POST | Speech-to-text transcription |
-| `/api/voice` | POST | Text-to-speech generation |
-| `/api/translate` | POST | Language translation |
-| `/api/grievance` | POST | Grievance registration + enrichment |
-| `/api/schemes` | POST | Scheme matching |
-| `/api/content-safety` | POST | Safety moderation checks |
-| `/api/sos` | POST | Start SOS workflow |
-| `/api/sos/status` | GET | Poll responder status |
-| `/api/sos/update-location` | POST | Live location updates |
-| `/api/sos/sms` | POST | SMS escalation |
-| `/api/vision-chat` | POST | Vision-assisted chat/grievance context |
-
----
-
-## Deployment
-
-### Docker
-
-```bash
-docker build -t bharat-setu .
-docker run -p 3000:3000 --env-file .env.local bharat-setu
+```
+User Message → Content Safety → Translation → Classification → Response
+                                                    │
+                                    ┌───────────────┼───────────────┐
+                                    ▼               ▼               ▼
+                               Phi-4 (5s)    TF-IDF (3s)     Client Regex
+                               (primary)     (fallback)      (last resort)
 ```
 
-The included `Dockerfile` builds and runs the Next.js standalone output with `/api/health` health checks.
+1. **Phi-4 Classification** — Microsoft's Phi-4 model classifies the English-translated query into one of 5 agent domains with a one-shot prompt
+2. **Local TF-IDF** — If Phi-4 is slow or unavailable, a scikit-learn TF-IDF + SVC classifier runs locally
+3. **Client Keywords** — 200+ regex patterns across 10 Indian scripts match known keywords as the final fallback
 
-### Netlify
+### Cross-Agent Context (MCP Pattern)
 
-`netlify.toml` is configured with:
-- `npm run build`
-- `@netlify/plugin-nextjs`
-- Node 20 build environment
-
----
-
-## Notes
-
-- The platform is optimized for mobile-first usage and layered fallback behavior.
-- Architecture intentionally combines stitched static screens with reactive overlays.
-- For detailed Azure setup guidance, see `AZURE_SETUP.md`.
+Every agent receives the last 8 messages from all other agents as `sharedContext`, enabling:
+- Seamless conversation continuation across domain switches
+- Context-aware responses that reference prior agent interactions
+- No information loss during automatic handoffs
 
 ---
 
-<div align="center">
+## 🆘 SOS Emergency System
 
-**Bharat Setu**  
-*Inclusive digital governance through multilingual AI orchestration*
+### Flow
 
-</div>
+1. **Activation** — Citizen long-presses SOS button (3 seconds)
+2. **Location** — GPS coordinates captured + ISRO DIGIPIN code generated
+3. **Dispatch** — Async fan-out to 7+ emergency responders simultaneously
+4. **Tracking** — Client polls for real-time responder status updates
+5. **Recording** — Audio recording starts for evidence preservation
+
+### Supported Responders
+
+| Responder | Number | Webhook Variable |
+|-----------|--------|------------------|
+| Police Emergency | 100 | `SOS_WEBHOOK_POLICE` |
+| Ambulance / EMRI | 108 | `SOS_WEBHOOK_POLICE` |
+| Fire Brigade | 101 | `SOS_WEBHOOK_POLICE` |
+| Women Helpline | 181 | `SOS_WEBHOOK_MAHILA` |
+| Child Helpline | 1098 | `SOS_WEBHOOK_CHILDLINE` |
+| Disaster (NDRF) | 1078 | `SOS_WEBHOOK_NDRF` |
+| Cyber Crime | 1930 | `SOS_WEBHOOK_CYBER` |
+| Legal Aid (NALSA) | — | `SOS_WEBHOOK_LEGAL` |
+
+---
+
+## 🌐 Supported Languages
+
+BharatSetu supports all **22 official languages** of India as defined in the Eighth Schedule:
+
+| | | | |
+|---|---|---|---|
+| 🇮🇳 Hindi | 🇮🇳 Bengali | 🇮🇳 Telugu | 🇮🇳 Marathi |
+| 🇮🇳 Tamil | 🇮🇳 Gujarati | 🇮🇳 Kannada | 🇮🇳 Malayalam |
+| 🇮🇳 Punjabi | 🇮🇳 Odia | 🇮🇳 Assamese | 🇮🇳 Urdu |
+| 🇮🇳 Maithili | 🇮🇳 Santali | 🇮🇳 Kashmiri | 🇮🇳 Nepali |
+| 🇮🇳 Konkani | 🇮🇳 Sindhi | 🇮🇳 Dogri | 🇮🇳 Manipuri |
+| 🇮🇳 Bodo | 🇮🇳 Sanskrit | 🇬🇧 English | |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+---
+
+<p align="center">
+  <strong>🇮🇳 BharatSetu — Bridging every citizen to their government, in every language India speaks.</strong>
+</p>
